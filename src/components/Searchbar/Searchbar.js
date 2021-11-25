@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FaSearch } from 'react-icons/fa';
 import s from './Searchbar.module.css';
 
-export default function SearchBar({ onSubmit, onClick }) {
+export default function SearchBar({ onSubmit }) {
   const [query, setQuery] = useState('');
 
   const handleQueryChange = event => {
@@ -27,7 +27,7 @@ export default function SearchBar({ onSubmit, onClick }) {
   return (
     <header className={s.Searchbar}>
       <form onSubmit={handleSubmit} className={s.SearchForm}>
-        <button type="submit" onClick={onClick} className={s.SearchFormButton}>
+        <button type="submit" className={s.SearchFormButton}>
           <FaSearch />
           <span className={s.SearchFormButtonLabel}>Search</span>
         </button>

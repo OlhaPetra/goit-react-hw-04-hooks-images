@@ -25,36 +25,40 @@ export default function App() {
   const [modalAlt, setModalAlt] = useState(null);
 
   const handleSearchFormSubmit = searchData => {
+    if (searchQuery === searchData) {
+      return;
+    }
+    setSearchQuery('');
+    setPage(1);
+    setImages([]);
+    setLoading(false);
     setSearchQuery(searchData);
   };
 
-  const searchImages = e => {
-    setLoading(true);
-    setImages([]);
-    setPage(1);
-    setTimeout(() => {
-      ImagesApi.ImagesFetch(searchQuery, page)
-        .then(results => {
-          if (results.length === 0) {
-            toast.error(
-              `No results were found for your query - "${searchQuery}"!`,
-            );
-            return;
-          }
-          setImages(results);
-          setPage(page + 1);
-          return;
-        })
-        .catch(error => setError(error))
-        .finally(setLoading(false));
-    }, 500);
+  useEffect(() => {
+    if (!searchQuery) {
+      return;
+    }
+    searchImages();
+  }, [searchQuery, page]);
+
+  const loadMoreBtn = () => {
+    setPage(prevPage => prevPage + 1);
   };
 
-  const loadMoreImages = e => {
-    setPage(page + 1);
-
+  const searchImages = () => {
+    setLoading(true);
     ImagesApi.ImagesFetch(searchQuery, page)
-      .then(results => setImages(prev => [...prev, ...results]))
+      .then(results => {
+        if (results.length === 0) {
+          toast.error(
+            `No results were found for your query - "${searchQuery}"!`,
+          );
+          return;
+        }
+        setImages(prev => [...prev, ...results]);
+        return;
+      })
       .catch(error => setError(error))
       .finally(setLoading(false));
   };
@@ -78,7 +82,7 @@ export default function App() {
   return (
     <>
       <div className={s.App}>
-        <SearchBar onSubmit={handleSearchFormSubmit} onClick={searchImages} />
+        <SearchBar onSubmit={handleSearchFormSubmit} />
         {error && <h1>Ошибка на сервере</h1>}
         {loading && (
           <Loader
@@ -93,7 +97,7 @@ export default function App() {
           <ImageGallary images={images} onClick={openModal} />
         )}
         {images.length > 11 && !loading && (
-          <Button onClickButton={loadMoreImages} />
+          <Button onClickButton={loadMoreBtn} />
         )}
         {modalImage && (
           <Modal onClose={closeModal} largeImage={modalImage} alt={modalAlt} />
